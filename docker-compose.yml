@@ -8,32 +8,16 @@ services:
     environment:
       TZ: "America/Santiago"
 
-  postgres:
-    image: postgres:13-alpine
-    container_name: hapi-postgres
-    restart: always
-    environment:
-      POSTGRES_DB: "hapi"
-      POSTGRES_USER: "admin"
-      POSTGRES_PASSWORD: "admin"
-      PGTZ: "America/Santiago"
-      TZ: "America/Santiago"
-    volumes:
-      - hapi-fhir-postgres:/var/lib/postgresql/data
-      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-      
   kong-migrations:
     image: kong
     environment:
       - KONG_DATABASE=postgres
-      - KONG_PG_HOST=172.20.27.54
-      - KONG_PG_USER=admin
-      - KONG_PG_PASSWORD=admin
+      - KONG_PG_HOST=database-1.cmrvef0uvkjw.us-west-2.rds.amazonaws.com
+      - KONG_PG_USER=postgres
+      - KONG_PG_PASSWORD=postgres
       - KONG_CASSANDRA_CONTACT_POINTS=postgres
     command: kong migrations bootstrap
     restart: on-failure
-    depends_on:
-      - postgres
   
   kong:
     image: kong
@@ -42,9 +26,9 @@ services:
       - LC_CTYPE=en_US.UTF-8
       - LC_ALL=en_US.UTF-8
       - KONG_DATABASE=postgres
-      - KONG_PG_HOST=172.20.27.54
-      - KONG_PG_USER=admin
-      - KONG_PG_PASSWORD=admin
+      - KONG_PG_HOST=database-1.cmrvef0uvkjw.us-west-2.rds.amazonaws.com
+      - KONG_PG_USER=postgres
+      - KONG_PG_PASSWORD=postgres
       - KONG_CASSANDRA_CONTACT_POINTS=postgres
       - KONG_PROXY_ACCESS_LOG=/dev/stdout
       - KONG_ADMIN_ACCESS_LOG=/dev/stdout
@@ -57,33 +41,15 @@ services:
     ports:
       - 8080:8001
 
+  konga:
+    image: pantsel/konga
+    ports:
+      - 1337:1337
     links:
-      - postgres:postgres
-    depends_on:
-      - postgres
-
-  # konga:
-  #   image: pantsel/konga
-  #   ports:
-  #     - 1337:1337
-  #   links:
-  #     - kong:kong
-  #   container_name: konga
-  #   environment:
-  #     - NODE_ENV=production
-
-  # pgadmin:
-  #   container_name: pgadmin
-  #   image: dpage/pgadmin4
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
-  #     PGADMIN_DEFAULT_PASSWORD: admin
-  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
-  #     TZ: "America/Santiago"
-  #   volumes:
-  #     - ./pgadmin/config_local.py:/pgadmin4/config_local.py
-  #   ports:
-  #     - "5050:80"
+      - kong:kong
+    container_name: konga
+    environment:
+      - NODE_ENV=production"
 
 volumes:
   hapi-fhir-postgres:

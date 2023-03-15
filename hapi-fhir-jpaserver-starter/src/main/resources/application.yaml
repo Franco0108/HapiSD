@@ -20,9 +20,9 @@ spring:
     # password: null
     # driverClassName: org.h2.Driver
     # max-active: 15
-    url: 'jdbc:postgresql://172.20.27.54:5432/hapi'
-    username: hapi
-    password: hapi
+    url: 'jdbc:postgresql://database-1.cmrvef0uvkjw.us-west-2.rds.amazonaws.com:5432/hapidb'
+    username: postgres
+    password: postgres
     driverClassName: org.postgresql.Driver
 
     # database connection pool size
