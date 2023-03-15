@@ -49,7 +49,4 @@ services:
       - kong:kong
     container_name: konga
     environment:
-      - NODE_ENV=production"
-
-volumes:
-  hapi-fhir-postgres:
+      - NODE_ENV=production
